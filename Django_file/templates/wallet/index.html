@@ -1,0 +1,314 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+  <title>{% block title %} Dashboard {% endblock %}</title>
+  <!-- ======================= Cards ================== -->
+  {% include 'partials/_messages.html' %}
+  <div class="cardBox">
+    <div class="card" style="border-bottom: 3px solid #007bff;">
+      <div>
+        <div class="numbers">
+            {{totalBalance}}
+        </div>
+        <div class="cardName">Total Balance</div>
+      </div>
+
+      <div class="iconBx">
+        <ion-icon name="cash-outline"></ion-icon>
+      </div>
+    </div>
+
+    <div class="card" style="border-bottom: 3px solid #007bff;">
+      <div>
+        <div class="numbers">
+          {{ totalIncome }}
+        </div>
+        <div class="cardName">Total Income</div>
+      </div>
+
+      <div class="iconBx">
+        <ion-icon name="arrow-up-outline"></ion-icon>
+      </div>
+    </div>
+
+    <div class="card" style="border-bottom: 3px solid #007bff;">
+      <div>
+        <div class="numbers">
+          {{ totalExpense }}
+        </div>
+        <div class="cardName">Total Expense</div>
+      </div>
+
+      <div class="iconBx">
+        <ion-icon name="arrow-down-outline"></ion-icon>
+      </div>
+    </div>
+
+    <div class="card" style="border-bottom: 3px solid #007bff;">
+      <div>
+        <div class="numbers">
+          {{ totalBudget }}
+        </div>
+        <div class="cardName">Total Budget</div>
+      </div>
+
+      <div class="iconBx">
+        <ion-icon name="wallet-outline"></ion-icon>
+      </div>
+    </div>
+  </div>
+
+
+  <div id="chartContainer" style="height: 400px; width: 95%;">
+
+  </div>
+
+  <div id="chartContainerAverage" style="height: 400px; width: 95%;">
+
+  </div>
+  <div id="chartContainerExpense" style="height: 400px; width: 95%;">
+
+  </div>
+  
+  
+  
+
+
+  {% comment %} ********************* Transaction Table ********************** {% endcomment %}
+  <div class="container">
+    {% comment %} {% if income.count %} {% endcomment %}
+    {% if wallet_1.count or wallet_2.count%}
+    <div class="row">
+      <div class="col-md-8"></div>
+      <div class="col-md-4">
+        {% comment %} ****************** Search Field NOT BUILT! ******************** {% endcomment %}
+        <div class="form-group">
+          <input type="text" class="form-control" id="searchField" placeholder="Search">
+        </div>
+      </div>
+    </div>
+    <div class="app-table">
+      <div class="table-responsive">
+        <table class="table table-stripped table-hover">
+          <thead>
+            <tr>
+              <th colspan="5" style="text-align: center;">Transaction Table</th>
+            </tr>
+            <tr>
+              <th>Transaction Type</th>
+              <th>Amount ({{currency}})</th>
+              <th>Source/Category</th>
+              <th>Description</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in page_obj%}
+            <tr>
+              <td>
+                {% if item.source %}
+                Income
+                {% else %}
+                Expense
+                {% endif %}
+              </td>
+              <td>{{item.amount}}</td>
+              <td>
+                {% if item.source %}
+                {{ item.source }}
+                {% else %}
+                {{ item.category }}
+                {% endif %}
+              </td>
+              <td>{{item.description}}</td>
+              <td>{{item.date}}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="pagination-container">
+      <div class="">
+        Showing page {{page_obj.number}} of {{ page_obj.paginator.num_pages }}
+      </div>
+      <ul class="pagination align-right float-right mr-auto">
+        {% if page_obj.has_previous %}
+        <li {% if page_obj.number == 1 %} class="page-item active" {% endif %}><a class="page-link" href="?page=1">&laquo; 1</a></li>
+        <li class="page-item"> <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a></li>
+        {% endif %}
+        {% if page_obj.has_next %}
+        <li class="page-item"> <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a></li>
+        <li class="page-item"> <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">{{ page_obj.paginator.num_pages}} &raquo;</a></li>
+        {% endif %}
+      </ul>
+      {%else%}
+      <p class="no-results"> No Transaction made yet</p>
+      <div>
+        <table class="table table-stripped table-hover">
+          <thead>
+            <tr>
+              <th colspan="5" style="text-align: center;">Transaction Table</th>
+            </tr>
+            <tr>
+              <th>Transaction Type</th>
+              <th>Amount ({{currency}})</th>
+              <th>Source</th>
+              <th>Description</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody class="table-body">
+            <tr>
+              <td>-</td>
+              <td>-</td>
+              <td>-</td>
+              <td>-</td>
+              <td>-</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      {%endif%}
+    </div>
+  </div>
+  </div>
+  <script>
+    var chartData = {{ chart_data | safe }};
+    var categories = chartData.categories;
+    var dailyData = chartData.series[0].data;
+    var weeklyData = chartData.series[1].data;
+    var monthlyData = chartData.series[2].data;
+  
+    var options = {
+      chart: {
+        type: 'column',
+        backgroundColor: 'transparent',
+        borderWidth: 0,
+        plotBorderColor: 'rgba(0, 0, 0, 0.2)',
+        plotBorderWidth: 1,
+      },
+      title: {
+        text: 'Your Income Per Source'
+      },
+      xAxis: {
+        categories: categories
+      },
+      yAxis: {
+        title: {
+          text: 'Income'
+        }
+      },
+      series: [
+        {
+          name: 'Today',
+          data: dailyData
+        },
+        {
+          name: 'This Week',
+          data: weeklyData
+        },
+        {
+          name: 'This Month',
+          data: monthlyData
+        }
+      ]
+    };
+  
+    Highcharts.chart('chartContainer', options);
+  </script>
+  <script>
+    var chartDataAverage = {{ chart_data_average | safe }};
+    var averageData = chartDataAverage.series[0].data;
+    //averageData.reverse(); // Reverse the order of averageData array
+  
+    var optionsAverage = {
+      chart: {
+        type: 'bar',
+        backgroundColor: 'transparent',
+        borderWidth: 0,
+        plotBorderColor: 'rgba(0, 0, 0, 0.2)',
+        plotBorderWidth: 1,
+      },
+      title: {
+        text: 'Your Average Income'
+      },
+      xAxis: {
+        categories: categories
+      },
+      yAxis: {
+        title: {
+          text: 'Income Average'
+        }
+      },
+      series: [
+        {
+          name: 'Average',
+          data: averageData,
+          color: 'red',
+          marker: {
+            enabled: false
+          },
+          tooltip: {
+            pointFormat: 'Average: {point.y}'
+          }
+        }
+      ]
+    };
+  
+    Highcharts.chart('chartContainerAverage', optionsAverage);
+  </script>
+
+
+<script>
+  var chartData = {{ chart_data_expense | safe }};
+  var chartDataAverage = {{ chart_data_average_expense | safe }};
+
+  var category = chartData.categories;
+  var series = chartData.series;
+  var averageData = chartDataAverage.series[0].data;
+
+  var colors = ['#FF0000', '#FF0000', '#0000FF']; // Specify the colors for each series
+
+  var highchartSeries = series.map(function (s) {
+      return {
+          name: s.name,
+          data: s.data,
+          //color: colors[index],
+      };
+  });
+
+  var optionsExpense = {
+      chart: {
+          type: 'bar',
+          backgroundColor: 'transparent',
+          borderWidth: 0,
+          plotBorderColor: 'rgba(0, 0, 0, 0.2)',
+          plotBorderWidth: 1,
+         // zoomType: 'x'  
+
+      },
+      title: {
+          text: 'Your Expense Per Category'
+      },
+      xAxis: {
+        categories: category // Use the extracted category names here
+      },
+      yAxis: {
+          title: {
+              text: 'Income'
+          }
+      },
+      series: highchartSeries
+  };
+
+  Highcharts.chart('chartContainerExpense', optionsExpense);
+
+</script>
+    <!-- ====== ionicons ======= -->
+    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+    <script src="{% static 'js/landing.js' %}"></script>
+    <script src="{% static 'js/searchIncome.js' %}"></script>
+  {% endblock content %}

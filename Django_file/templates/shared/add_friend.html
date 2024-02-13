@@ -1,0 +1,361 @@
+{% extends 'base.html' %}
+
+
+{% block title %}Friends{% endblock title %}
+
+
+{% load static %}
+{% block css %}
+
+<link rel="stylesheet" href="{% static 'home/css/add_friend.css' %}" type="text/css" />
+{% endblock css %}
+
+{% block body %}
+
+<div>
+	<div class="container py-5">
+		<div class="row">
+			<div class="col-md-3">
+				<div class="container sidebar_container">
+					<div class="row">
+						<div class="col">Add Friends</div>
+						<div class="col">
+							<div class="dropdown">
+								<button class="btn btn-secondary dropdown-toggle" type="button" id="add_friend_drop_down"
+									data-bs-toggle="dropdown" aria-expanded="false">
+									All Users
+								</button>
+								<ul class="dropdown-menu" aria-labelledby="add_friend_drop_down">
+									{% for id, user_name in users.items %}
+									<li>
+										<div class="dropdown-item all-friends" id="{{ id }}">{{ user_name }}</div>
+									</li>
+									{% endfor %}
+								</ul>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col">Friend Requests</div>
+						<div class="col">
+							<div class="dropdown">
+								<button class="btn btn-secondary dropdown-toggle" type="button" id="friend_request_drop_down"
+									data-bs-toggle="dropdown" aria-expanded="false">
+									Requests
+								</button>
+								<ul class="dropdown-menu" aria-labelledby="friend_request_drop_down">
+									{% for activity in friend_requests %}
+									<li>
+										<div class="dropdown-item friend_request" id="{{ activity.id }}">
+											{{ activity.sender_id.username }}
+											<button type="button" class="btn btn-primary">Accept</button>
+											<button type="button" class="btn btn-primary">Reject</button>
+										</div>
+									</li>
+									{% endfor %}
+								</ul>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col">Friend Invites</div>
+						<div class="col">
+							<div class="dropdown">
+								<button class="btn btn-secondary dropdown-toggle" type="button" id="friend_invites_drop_down"
+									data-bs-toggle="dropdown" aria-expanded="false">
+									Invites
+								</button>
+								<ul class="dropdown-menu" aria-labelledby="friend_invites_drop_down">
+									{% for activity in pending_invites %}
+									<li>
+										<div class="dropdown-item friend_request" id="{{ activity.id }}">
+											{{ activity.user_id.username }}
+										</div>
+									</li>
+									{% endfor %}
+								</ul>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col">All Friends</div>
+						<div class="col">
+							<div class="dropdown">
+								<button class="btn btn-secondary dropdown-toggle" type="button" id="all_friend_drop_down"
+									data-bs-toggle="dropdown" aria-expanded="false">
+									Friends
+								</button>
+								<ul class="dropdown-menu" aria-labelledby="all_friend_drop_down">
+									{% for friend in all_friends %}
+									<li>
+										<div class="dropdown-item my_friends" id="{{ friend.id }}">
+											{{ friend.username }}
+										</div>
+									</li>
+									{% endfor %}
+								</ul>
+							</div></div>
+					</div>
+					<div class="row">
+						<div class="col">
+							<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#bill_request_modal">
+								Show Bill Requests
+							</button>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col">
+							<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addexpense">
+								Add Expenses
+							</button>
+						</div>
+					</div>
+
+				</div>
+			</div>
+			<div class="col-md-9">
+				<table class="table table-striped active_expenses">
+					<thead>
+						<tr>
+							<td>
+								<div class="empty_table">
+									<div class="add_expense_btn_container">
+										<button type="button" class="btn custom-add-expense-button" data-bs-toggle="modal" data-bs-target="#addexpense">
+											Add Expenses
+										</button>
+									</div>
+								</div>
+							</td>
+							
+						</tr>
+					</thead>
+					
+				</table>
+			</div>
+		</div>
+	</div>
+
+</div>
+
+<!-- Show Bill Request Modal -->
+<div class="modal fade" id="bill_request_modal" tabindex="-1" aria-labelledby="bill_request_modal_label"
+	aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="bill_request_modal_label">Bill Requests</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<div class="dropdown">
+					<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1"
+						data-bs-toggle="dropdown" aria-expanded="false">
+						Show Requests
+					</button>
+					<ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+						{% for activity in bills_requests %}
+						<li>
+							<div class="dropdown-item bill_request" id="{{ activity.bill_id.id }}">
+								{{ activity.sender_id.username }} - {{ activity.bill_id.bill_name }}
+								<div style='display: none;' class='bill_name'>{{ activity.bill_id.bill_name }}</div>
+								<div style='display: none;' class='bill_amount'>{{ activity.bill_id.amount }}</div>
+								<div style='display: none;' class='bill_split_type'>{{ activity.bill_id.split_type }}
+								</div>
+								<div style='display: none;' class='bill_date'>{{ activity.bill_id.date }}</div>
+							</div>
+						</li>
+						{% endfor %}
+
+					</ul>
+				</div>
+
+				<table class="table bill_request_table" style='display: none;'>
+					<tbody>
+						<tr>
+							<td>Bill Name</td>
+							<td id='table_bill_name'></td>
+						</tr>
+						<tr>
+							<td>Amount</td>
+							<td id='table_bill_amount'></td>
+						</tr>
+						<tr>
+							<td>Split type</td>
+							<td id='table_bill_split'></td>
+						</tr>
+						<tr>
+							<td>Date</td>
+							<td id='table_bill_date'></td>
+						</tr>
+						<tr>
+							<td>Payed Amount</td>
+							<td id='table_bill_amount_paid'></td>
+						</tr>
+						<tr>
+							<td>Debt Amount</td>
+							<td id='table_bill_amount_debt'></td>
+						</tr>
+						<tr>
+							<td>Receiving Amount</td>
+							<td id='table_bill_amount_receive'></td>
+						</tr>
+
+						<tr>
+							<td>
+								<button type="button" class="btn btn-primary">Accept</button>
+								<button type="button" class="btn btn-primary">Reject</button>
+							</td>
+							<td>
+								<div style='display: none;' id='div_bill_id'></div>
+							</td>
+						</tr>
+
+					</tbody>
+				</table>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Add Expense Modal -->
+<div class="modal fade" id="addexpense" tabindex="-1" aria-labelledby="addexpenseLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="addexpenseLabel">Add Expense</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<form id='expense_form'>
+					<div class="input-group mb-3">
+						<label class="input-group-text" for="inputGroupSelect01">With</label>
+						<select class="form-select" id="friend_name">
+							<option value='0' selected>Choose...</option>
+							{% for friend in all_friends %}
+							<option value="{{ friend.id }}">{{ friend.username }}</option>
+							{% endfor %}
+						</select>
+					</div>
+					<div class="mb-3">
+						<input type="text" class="form-control" id="expense_name" value='' placeholder='Expense Name'
+							name='expense_name'>
+					</div>
+
+					<div class="input-group mb-3">
+						<input type="text" class="form-control" aria-label="Username"
+							value='{{ request.user.username }} paid' disabled>
+						<span class="input-group-text">ETB</span>
+						<input type="text" class="form-control" id='current_user_amount' aria-label="amount" value='0'>
+					</div>
+
+					<div class="input-group mb-3">
+						<input type="text" class="form-control" id='other_user' value='Friend paid'
+							aria-label="Username" disabled>
+						<span class="input-group-text">ETB</span>
+						<input type="text" class="form-control" id='other_user_amount' aria-label="amount" value='0'>
+					</div>
+
+					<div class="input-group mb-3">
+						<input type="text" class="form-control" aria-label="total_amount" placeholder='Total Amount'
+							disabled>
+						<span class="input-group-text">ETB</span>
+						<input type="text" class="form-control" id='total_amount' aria-label="total_amount" value='0'
+							disabled>
+						<div class="invalid-feedback" id='amount-zero'>
+							Amount not filled.
+						</div>
+					</div>
+
+					<div class="input-group mb-3">
+						<label class="input-group-text" for="inputGroupSelect02">Split Type</label>
+						<select class="form-select" id="split_type">
+							<option value='0' selected>Choose...</option>
+							<option value="equal">Equal</option>
+							<option value="exact">Exact</option>
+							<option value="percentage">Percentage</option>
+						</select>
+					</div>
+
+					<div class="input-group mb-3">
+						<input type="text" class="form-control" value='{{ request.user.username }} must pay' disabled>
+						<span class="input-group-text">ETB</span>
+						<input type="text" class="form-control" id='current_user_must_pay' value='0'>
+						<span class="input-group-text percentage-span" style='display:none;'>%</span>
+					</div>
+
+					<div class="input-group mb-3">
+						<input type="text" class="form-control" id='other_user2' value='Friend must pay' disabled>
+						<span class="input-group-text">ETB</span>
+						<input type="text" class="form-control" id='other_user_must_pay' value='0'>
+						<span class="input-group-text percentage-span" style='display:none;'>%</span>
+						<div class="invalid-feedback" id='total_amount_remaining'>
+							Total Amount not same.
+						</div>
+					</div>
+
+
+					<div class='input-group mb-3'>
+						<label class="form-control" for="datetime-local">Date-Time</label>
+						<input class="form-control" type="datetime-local" id="datetime-local">
+					</div>
+
+
+					<div class="mb-3">
+						<label for="message-text" class="col-form-label">Send Verify notification with message</label>
+						<textarea class="form-control" name='message' id="message-text"></textarea>
+					</div>
+
+				</form>
+
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+				<button type="button" class="btn btn-primary" id='add_expense'>Add expense</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Settle Modal -->
+<div class="modal fade" id="settlement_modal" tabindex="-1" aria-labelledby="settlement_modal_label" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="settlement_modal_label">Pay..</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<form>
+					<div class="input-group mb-3">
+						<span class="input-group-text">Rs</span>
+						<input type="text" class="form-control" id='settle_payment' value='0'>
+						<div class="invalid-feedback invalid_value_error">
+							Invalid Value!!!
+						  </div>
+					</div>
+					<input type="hidden" name="settle_bill_id" id="settle_bill_id">
+					<input type="hidden" name="max_payment_amount" id="max_payment_amount" >
+				</form>
+					
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+				<button type="button" class="btn btn-primary" id="settle_payment_pay_button">Pay</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+{% endblock body %}
+
+
+{% block js %}
+<script> 
+	var url = '{% url 'add_friend' %}';
+	var crf_token = "{{ csrf_token }}";
+</script>
+<script src="{% static 'home/js/add_friend.js' %}"></script>
+{% endblock js %}

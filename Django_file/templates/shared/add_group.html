@@ -1,0 +1,280 @@
+{% extends 'base.html' %}
+
+
+{% block title %}Groups{% endblock title %}
+
+
+{% load static %}
+{% block css %}
+
+<link rel="stylesheet" href="{% static 'home/css/add_group.css' %}" type="text/css" />
+{% endblock css %}
+
+{% block body %}
+
+<div>
+    <div class="container py-5">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="container sidebar_container">
+                    <div class="row">
+                        <div class="col">
+                            <div class="dropdown">
+								<button class="btn btn-primary dropdown-toggle" type="button" id="show_my_groups"
+									data-bs-toggle="dropdown" aria-expanded="false">
+									Show My Groups
+								</button>
+								<ul class="dropdown-menu" aria-labelledby="show_my_groups">
+									{% for grp_id, grp_name in my_groups %}
+									<li>
+										<div class="dropdown-item group_target" id="{{ grp_id }}">{{ grp_name }}</div>
+									</li>
+									{% endfor %}
+								</ul>
+							</div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                                data-bs-target="#add_group_modal">
+                                Add Group
+                            </button>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                                data-bs-target="#bill_request_modal">
+                                Show Bill Requests
+                            </button>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                                data-bs-target="#addexpense">
+                                Add Expenses
+                            </button>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="dropdown">
+								<button class="btn btn-primary dropdown-toggle" type="button" id="show_groups_invites"
+									data-bs-toggle="dropdown" aria-expanded="false">
+									Show Group Invites
+								</button>
+								<ul class="dropdown-menu" aria-labelledby="show_groups_invites">
+									{% for activity_object in group_invites %}
+									<li>
+										<div class="dropdown-item group_invites_target" id="{{ activity_object.group_id.id }}">
+                                            {{ activity_object.group_id.group_name }}
+                                            <button type="button" class="btn btn-primary">Accept</button>
+											<button type="button" class="btn btn-primary">Reject</button>
+                                        </div>
+									</li>
+									{% endfor %}
+								</ul>
+							</div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="col-md-9">
+                <table class="table table-striped active_expenses">
+                    <thead>
+                        <tr>
+                            <td>
+                                <div class="empty_table">
+                                    <div class="add_expense_btn_container">
+                                        <button type="button" class="btn custom-add-expense-button"
+                                            data-bs-toggle="modal" data-bs-target="#addexpense">
+                                            Add Expenses
+                                        </button>
+                                    </div>
+                                </div>
+                            </td>
+
+                        </tr>
+                    </thead>
+
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Add Group Modal -->
+<div class="modal fade" id="add_group_modal" tabindex="-1" aria-labelledby="add_group_modal_label" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="add_group_modal_label">Add Group</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="create_new_group_form">
+                    <div class="mb-3">
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="add_friend_to_group" data-bs-toggle="dropdown" aria-expanded="false">
+                              Dropdown button
+                            </button>
+                            <span class="validation_error" id="group_member_number_error">
+                                Group has minimum 3 members.
+                            </span>
+                            <ul class="dropdown-menu" aria-labelledby="add_friend_to_group">
+                                {% for friend in all_friends %}
+                                    <li>
+                                        <div class="dropdown-item target_friend" id="{{ friend.id }}">
+											{{ friend.username }}
+										</div>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                          </div>
+                          <div class="span_friend_group">
+                            
+                          </div>
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-text">Group Name</span>
+                        <input type="text" aria-label="group name" id="group_name_input" class="form-control">
+                    </div>
+                    <div class="validation_error" id="group_name_error">
+                        Group name not valid.
+                    </div>
+                  </form>
+                  <div class="alert" id='add_group_response' role="alert">
+                    
+                  </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="add_group_btn">Add</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Add Expense Modal -->
+<div class="modal fade" id="addexpense" tabindex="-1" aria-labelledby="addexpense_label" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addexpense_label">Add Expense</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id='expense_form'>
+					<div class="input-group mb-3">
+						<label class="input-group-text" for="inputGroupSelect01">With</label>
+						<select class="form-select" id="group_name">
+							<option value='0' selected>Choose...</option>
+							{% for grp_id, grp_name in my_groups %}
+							<option value="{{ grp_id }}">{{ grp_name }}</option>
+							{% endfor %}
+						</select>
+					</div>
+					<div class="mb-3">
+						<input type="text" class="form-control" id="expense_name" value='' placeholder='Expense Name'
+							name='expense_name'>
+					</div>
+
+                    
+                    <div id="all_grp_members_with_amount_wrapper">
+                        <div class="row">
+                            
+                        </div>
+                    </div>
+                    
+                    
+					
+
+					<div class="input-group mb-3">
+						<input type="text" class="form-control" aria-label="total_amount" placeholder='Total Amount'
+							disabled>
+						<span class="input-group-text">$</span>
+						<input type="text" class="form-control" id='total_amount' aria-label="total_amount" value='0'
+							disabled>
+						<div class="invalid-feedback" id='amount-zero'>
+							Amount not filled.
+						</div>
+					</div>
+
+					<div class="input-group mb-3">
+						<label class="input-group-text" for="inputGroupSelect02">Split Type</label>
+						<select class="form-select" id="split_type">
+							<option value='0' selected>Choose...</option>
+							<option value="equal">Equal</option>
+							<option value="exact">Exact</option>
+							<option value="percentage">Percentage</option>
+						</select>
+					</div>
+
+					
+                    <div id="all_grp_members_with_actual_amount_wrapper">
+                        <div class="row">
+                            
+                        </div>
+                    </div>
+                    <div class="invalid-feedback" id='total_amount_remaining'>
+                        Total Amount not same.
+                    </div>
+
+					<div class='input-group mb-3'>
+						<label class="form-control" for="datetime-local">Date-Time</label>
+						<input class="form-control" type="datetime-local" id="datetime-local">
+					</div>
+
+
+					<div class="mb-3">
+						<label for="message-text" class="col-form-label">Send Verify notification with message</label>
+						<textarea class="form-control" name='message' id="message-text"></textarea>
+					</div>
+
+				</form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="add_group_expense_btn">Add Expense</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bill Requests Modal -->
+<div class="modal fade" id="bill_request_modal" tabindex="-1" aria-labelledby="bill_request_modal_label"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="bill_request_modal_label">Bill Requests</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                ...
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock body %}
+
+
+{% block js %}
+<script>
+    var url = '{% url 'add_group' %}';
+    var crf_token = "{{ csrf_token }}";
+    var groups_members = JSON.parse('{{ groups_members|safe }}');
+    // console.log(groups_members);
+</script>
+<script src="{% static 'home/js/add_group.js' %}"></script>
+{% endblock js %}

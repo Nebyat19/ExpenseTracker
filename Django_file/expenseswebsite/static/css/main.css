@@ -1,0 +1,171 @@
+.bd-placeholder-img {
+  font-size: 1.125rem;
+  text-anchor: middle;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+@media (min-width: 768px) {
+  .bd-placeholder-img-lg {
+    font-size: 3.5rem;
+  }
+}
+
+.showPasswordToggle {
+  cursor: pointer;
+  transition: all;
+}
+
+.showPasswordToggle:hover {
+  transform: scale(1.2);
+}
+
+
+
+
+
+/* ======================= Cards ====================== */
+.cardBox {
+  position: relative;
+  width: 100%;
+  padding: 10px;
+  /* margin-top: 25px; */
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.cardBox .card {
+  position: relative;
+  background: var(--white);
+  padding: 20px;
+  border-radius: 20px;
+  flex-basis: calc(25% - 10px);
+  display: flex;
+  justify-content: space-between;
+  cursor: pointer;
+  box-shadow: 0 7px 25px rgba(0, 0, 0, 0.08);
+  text-align: center;
+}
+
+.cardBox .card .numbers {
+  position: relative;
+  font-weight: 500;
+  font-size: 2.5rem;
+  color: var(--blue);
+}
+
+.cardBox .card .cardName {
+  color: var(--black2);
+  font-size: 1.1rem;
+  margin-top: 5px;
+}
+
+.cardBox .card .iconBx {
+  font-size: 3.5rem;
+  color: var(--black2);
+}
+
+.cardBox .card:hover {
+  background: var(--blue);
+}
+
+.cardBox .card:hover .numbers,
+.cardBox .card:hover .cardName,
+.cardBox .card:hover .iconBx {
+  color: var(--white);
+}
+
+/* Media Queries */
+
+/* Small devices (up to 576px) */
+@media (max-width: 576px) {
+  .cardBox .card {
+    flex-basis: calc(50% - 10px);
+  }
+}
+
+/* Medium devices (between 576px and 768px) */
+@media (min-width: 576px) and (max-width: 768px) {
+  .cardBox .card {
+    flex-basis: calc(50% - 10px);
+  }
+}
+
+/* Large devices (between 768px and 992px) */
+@media (min-width: 768px) and (max-width: 992px) {
+  .cardBox .card {
+    flex-basis: calc(50% - 10px);
+  }
+}
+
+/* Extra-large devices (between 992px and 1200px) */
+@media (min-width: 992px) and (max-width: 1200px) {
+  .cardBox .card {
+    flex-basis: calc(33.333% - 10px);
+  }
+}
+
+/* Extra-extra-large devices (above 1200px) */
+@media (min-width: 1200px) {
+  .cardBox .card {
+    flex-basis: calc(25% - 10px);
+  }
+}
+
+
+
+
+
+
+
+
+/**************** Notifications */
+#btn-nav{
+  float: right;
+  margin-right: 25px;
+  font-size: 20px;
+}
+.dropdown-menu{
+  position: absolute !important;
+  float: right;
+  margin-right: 25px;
+}
+
+.total, .pending{
+  position: absolute;
+  border-radius: 50px;
+  font-size: 13px;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  justify-content: center;
+  margin-top: -32px;
+}
+.total{
+  margin-left: 14px;
+  background-color: #007bff;
+
+}
+.pending{
+  margin-left: 14px;
+  background-color: red;
+}
+
+
+
+
+.delete-btn {
+  font-size: 14px;
+  padding: 0;
+  margin: 0;
+  background: none;
+  border: none;
+}
+
+.delete-btn i {
+  font-size: 14px;
+}

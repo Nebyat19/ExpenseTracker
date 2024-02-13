@@ -1,0 +1,241 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<div class="container mt-4">
+        <div class="row">
+          <div class="col-md-12">
+            <nav aria-label="breadcrumb">
+              <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                  <a href="">Budget</a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                  Planing
+                </li>
+                <li class="breadcrumb-item ml-auto">
+                  <a href="{% url 'add-budget'%}" class="btn btn-primary">Add Budget</a>
+                </li>
+              </ol>
+            </nav>
+          </div>
+        </div>
+
+<div class="container">
+{% include 'partials/_messages.html' %}
+{% if budget.count %}
+
+    <div class="row">
+      <div class="col-md-8"></div>
+      <div class="col-md-4">
+
+        <div class="form-group">
+          <input type="text" class="form-control" id="searchField" placeholder="Search">
+        </div>
+      </div>
+    </div>
+<div class="app-table">
+  <div class="table-responsive">
+    <table class="table table-stripped table-hover">
+      <thead>
+        <tr>
+          <th>Amount ({{currency}})</th>
+          <th>Category</th>
+          <th>Duration</th>
+          <th>Description</th>
+          <th>Date</th>
+          <th></th>
+        </tr>
+      </thead>
+  
+      <tbody>
+        {% for budget in page_obj%}
+        <tr>
+          <td>{{budget.amount}}</td>
+          <td>{{budget.category}}</td>
+          <td>{{budget.duration}}</td>
+          <td>{{budget.description}}</td>
+          <td>{{budget.date}}</td>
+  
+          <td>
+            <a
+              href="{% url 'budget-edit' budget.id  %}"
+              class="btn btn-secondary btn-sm"
+              >Edit</a
+            >
+          </td>
+        </tr>
+  
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<p class="no-results" style="display: none;">No results </p>
+    <div class="table-output">
+
+
+      <table class="table table-stripped table-hover">
+        <thead>
+          <tr>
+            <th>Amount ({{currency}})</th>
+            <th>Category</th>
+            <th>Duration</th>
+            <th>Description</th>
+            <th>Date</th>
+            <th></th>
+          </tr>
+        </thead>
+
+        <tbody  class="table-body">
+
+
+        </tbody>
+      </table>
+    </div>
+
+
+
+
+    <div class="pagination-container">
+    <div class="">
+      Showing page {{page_obj.number}} of {{ page_obj.paginator.num_pages }}
+    </div>
+    <ul class="pagination align-right float-right mr-auto">
+      {% if page_obj.has_previous %}
+      <li {% if page_obj.number == 1 %} class="page-item active" {% endif %}><a class="page-link" href="?page=1">&laquo; 1</a></li>
+      <li class="page-item"> <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a></li>
+      {% endif %}
+
+      {% if page_obj.has_next %}
+      <li class="page-item"> <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a></li>
+      <li class="page-item"> <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">{{ page_obj.paginator.num_pages}} &raquo;</a></li>
+      {% endif %}
+
+
+      </ul>
+    {% endif %}
+  </div>
+</div>
+</div>
+
+
+<div id="chartContainerCategory" style="height: 400px; width: 95%; margin-bottom: 30px;">
+
+</div>
+<div id="chartContainerDuration" style="height: 400px; width: 95%; margin-bottom: 30px;">
+
+</div>
+<div id="chartContainerAverage" style="height: 400px; width: 95%;">
+
+</div>
+
+<script>
+  var chartDataCategory = {{ chart_data | safe }};
+  var chartDataDuration = {{ chart_data_duration | safe }};
+  var chartDataAverage = {{ chart_data_average | safe }};
+
+  var category = chartDataCategory.categories;
+  var seriesCategory = chartDataCategory.series;
+
+  var duration = chartDataDuration.categories;
+  var seriesDuration = chartDataDuration.series;
+
+  var averageData = chartDataAverage.series[0].data;
+
+  var highchartSeriesCategory = seriesCategory.map(function (s) {
+      return {
+          name: s.name,
+          data: s.data
+      };
+  });
+
+  var highchartSeriesDuration = seriesDuration.map(function (s) {
+      return {
+          name: s.name,
+          data: s.data
+      };
+  });
+
+  var optionsCategory = {
+      chart: {
+          type: 'column',
+          backgroundColor: 'transparent',
+          borderWidth: 0,
+          plotBorderColor: 'rgba(0, 0, 0, 0.2)',
+          plotBorderWidth: 1
+      },
+      title: {
+          text: 'Budget Entries Per Category'
+      },
+      xAxis: {
+          categories: category
+      },
+      yAxis: {
+          title: {
+              text: 'Budget'
+          }
+      },
+      series: highchartSeriesCategory
+  };
+
+  var optionsDuration = {
+      chart: {
+          type: 'bar',
+          backgroundColor: 'transparent',
+          borderWidth: 0,
+          plotBorderColor: 'rgba(0, 0, 0, 0.2)',
+          plotBorderWidth: 1
+      },
+      title: {
+          text: 'Budget Entries Per Duration'
+      },
+      xAxis: {
+          categories: duration
+      },
+      yAxis: {
+          title: {
+              text: 'Budget'
+          }
+      },
+      series: highchartSeriesDuration
+  };
+  
+  var optionsAverage = {
+      chart: {
+          type: 'bar',
+          backgroundColor: 'transparent',
+          borderWidth: 0,
+          plotBorderColor: 'rgba(0, 0, 0, 0.2)',
+          plotBorderWidth: 1
+      },
+      title: {
+          text: 'Average Budget Amount'
+      },
+      xAxis: {
+          categories: ['Today', 'This Week', 'This Month']
+      },
+      yAxis: {
+          title: {
+              text: 'Budget'
+          }
+      },
+      series: [{
+          name: 'Average',
+          data: averageData
+      }]
+  };
+
+  Highcharts.chart('chartContainerCategory', optionsCategory);
+  Highcharts.chart('chartContainerDuration', optionsDuration);
+  Highcharts.chart('chartContainerAverage', optionsAverage);
+</script>
+
+
+<script src="{% static 'js/searchBudget.js' %}"></script>
+
+</script>
+{% endblock content %}
+

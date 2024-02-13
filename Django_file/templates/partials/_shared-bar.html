@@ -1,0 +1,104 @@
+{% load static %}
+
+    {% load static %}
+    <div id="wrapper">
+        <div class="overlay"></div>
+         
+             <!-- Sidebar -->
+         <nav class="navbar navbar-inverse fixed-top" id="sidebar-wrapper" role="navigation" style="margin-top: 65px; margin-left: -220px;">
+          <ul class="nav sidebar-nav">
+            <div class="sidebar-header">
+            <div class="sidebar-brand">
+              <a href="#">Dashboard</a></div></div>
+
+            
+                          
+                                <div class="side_bar_row side_bar_row_clicked" id="dashboard_side_bar">
+                                    <i class="fa-solid fa-chart-line"></i>
+                                    <span>Expense</span>
+                                </div>
+                            
+                               
+                                      <div class="container-fluid">
+                        
+                          
+                                <div class="side_bar_row" id="activity_side_bar">
+                                    <i class="fa-solid fa-flag"></i>
+                                    <span>Activity</span>
+                                </div>
+                         
+                       
+                        <!-- <div class="row">
+                            <div class="col">
+                                <div class="side_bar_row" id="all_expense_side_bar">
+                                    <i class="fa-solid fa-list"></i>
+                                    <span>All Expenses</span>
+                                </div>
+                            </div>
+                        </div> -->
+                       
+                                <div class="side_bar_row side_bar_label text-center">
+                                    <span>Groups</span>
+                                </div>
+                          
+                      
+                                <div class="side_bar_row add_icon_wrapper text-center" id='add_group_btn'>
+                                    <i class="fa-solid fa-circle-plus"></i>
+                                    <span>Add Group</span>
+                                </div>
+                          
+                        <!-- for loop  -->
+                       
+                                <div class="group_name_list_wrapper">
+                                    {% for group_id, group_name in groups_list %}
+                                    <div class="side_bar_row group_name_list" id='{{ group_id }}'>
+                                        <i class="fa-solid fa-tag"></i>
+                                        <span>{{ group_name }}</span>
+                                    </div>
+                                    {% endfor %}
+                              
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <div class="side_bar_row side_bar_label text-center">
+                                    <span>Friends</span>
+                                </div>
+                            </div>
+                        </div>
+                      
+                                <div class="side_bar_row add_icon_wrapper text-center" id='add_friend_btn'>
+                                    <i class="fa-solid fa-circle-plus"></i>
+                                    <span>Add Friend</span>
+                                </div>
+                        
+                        <!-- for loop  -->
+                        
+                                <div class="friends_name_list_wrapper">
+                                    {% for friend in friends_list %}
+                                    <div class="side_bar_row friend_name_list" id='{{ friend.friend_id__id }}'>
+                                        <i class="fa-solid fa-user-check"></i>
+                                        <span>{{ friend.friend_id__username }}</span>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+    
+                        
+                            <div class="add_expense_sidebar_button_wrapper">
+                                <div class="side_bar_row">
+                                    <button type="button" class="btn btn-success btn-rounded" style="width: 100%;" data-bs-toggle="modal"
+                                        data-bs-target="#add_expense_modal"><i class="fa-solid fa-circle-plus"></i>
+                                        Add Expense
+                                    </button>
+                           
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <li><a href="{% url 'preferences' %}" class="works">General</a></li>
+            <li><a href="{% url 'home' %}" class="services">Homepage</a></li>
+            <li><a href="{% url 'login' %}" class="contact">Logout</a></li>
+            {% comment %} <li><a href="#" class="followme">Admin</a></li> {% endcomment %}
+          </ul>
+       </nav>
+         </div>

@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+
+{% load static %}
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>{% block title %}{% endblock title %}</title>
+  <!-- Bootstrap core CSS -->
+
+ 
+ 
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+ 
+  
+  
+ 
+  <!-- Bootstrap JS -->
+  <!-- Bootstrap CSS -->
+  
+     <link href="{% static 'css/bootstrap.min.css'%}" rel="stylesheet" />
+    <link href="{% static 'css/main.css'%}" rel="stylesheet" />
+    {% comment %} <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js"></script> {% endcomment %}
+    <link href="{% static 'css/dashboard.css' %}" rel="stylesheet" />
+   
+    {% comment %} <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script> {% endcomment %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">  
+    
+    {% comment %} <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.min.css"> {% endcomment %}
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/js/bootstrap.min.js"></script> 
+   
+    <link href="{% static 'css/sidebar.css'%}" rel="stylesheet" />
+
+  <style>
+    .sidebar {
+      display: block;
+    }
+    
+    .expanded .sidebar {
+      transform: translateX(0);
+    }
+    main {
+      margin-left: 250px;
+      transition: margin-left 0.3s ease;
+      margin-top: 25px;
+    }
+    .hamburger-icon{
+      display: none;
+    }
+
+
+    .fa-bars,
+    .fa-times {
+      font-size: 1.5rem;
+      transition: transform 0.3s ease;
+    }
+
+    .fa-times {
+      display: none;
+    }
+
+    .expanded .hamburger-icon.fa-bars {
+      transform: rotate(180deg);
+    }
+
+    .expanded .hamburger-icon.fa-times {
+      display: inline;
+      transform: rotate(0);
+    }
+    @media (max-width: 768px) {
+      .sidebar {
+        display: none;
+      }
+      main {
+        margin-left: 0;
+        margin-top: -60px;
+      }
+      .hamburger-icon{
+        display: inline;
+        cursor: pointer;
+      }
+    }
+    @media (max-width: 576px) {
+      .sidebar {
+        display: none;
+      }
+      main {
+        margin-left: 0;
+        margin-top: -20px;
+      }
+      .hamburger-icon{
+        display: inline;
+        cursor: pointer;
+      }
+    }
+  </style>
+  {% block css %}{% endblock css %}
+</head>
+
+<body>
+  <!-- Navigation Bar -->
+  <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
+    <div class="container-fluid d-flex align-items-center">
+      <div class="navbar-brand">
+        <i class="fas fa-bars hamburger-icon mr-3"></i>
+        <h3>Expense Tracker</h3>  
+        {% comment %} <i class="fas fa-bars hamburger-icon"></i> {% endcomment %}
+      </div>
+
+  <div class="ml-auto">
+    <div class="dropdown">
+      <a class="text-light dropdown-toggle" id="btn-nav" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <i class="fas fa-bell"></i>
+        <span class="pending">
+          {{ my_number }}
+        </span>
+      </a>
+      <div class="dropdown-menu dropdown-menu-right mt-5 text-center" aria-labelledby="btn-nav" style="max-height: 580px; overflow-y: auto;">
+        {% for notification in notifications reversed %}
+        <a class="dropdown-item" href="#">
+          {{ notification.time }} - {{ notification.message }}
+          <form method="POST" action="{% url 'notification_delete' notification.pk %}">
+            {% csrf_token %}
+            <button type="submit" class="delete-btn"><i class="fas fa-trash"></i></button>
+          </form>
+        </a>
+        {% empty %}
+        <a class="dropdown-item disabled" href="#">No notifications</a>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <ul class="navbar-nav ml-3">
+    <li class="nav-item text-nowrap">
+      <span class="nav-link" href="">
+        <i class="fas fa-user"></i>
+        {{ request.user.username }}
+      </span>
+    </li>
+  </ul>
+</div>
+</nav>
+<div class="container">
+  <div class="row">
+    <div class="sidebar expanded">
+      {% include 'partials/_sidebar.html' %}
+    </div>
+    <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-0">
+      {% block body %}{% endblock body %}
+    </main>
+  </div>
+</div>
+
+
+<script>
+  $(document).ready(function() {
+    console.log("Dropdown initialization code executed.");
+    $('.dropdown-toggle').dropdown();
+  });
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var notificationsMenu = document.getElementById('notifications-menu');
+    notificationsMenu.addEventListener('click', function(event) {
+        event.stopPropagation(); // Prevent the dropdown from closing
+
+        // Handle the click event here
+        var target = event.target;
+        if (target.classList.contains('dropdown-item')) {
+            // Handle the notification item click
+            console.log('Notification clicked:', target.textContent);
+        }
+    });
+});
+</script>
+
+
+<script>
+  
+
+
+ document.addEventListener("DOMContentLoaded", function() {
+    const hamburgerIcon = document.querySelector(".hamburger-icon");
+    const sidebar = document.querySelector(".sidebar");
+
+    hamburgerIcon.addEventListener("click", function() {
+      
+      if (sidebar.style.display === "none" || sidebar.style.display === "") {
+        sidebar.style.display = "block";
+        hamburgerIcon.classList.toggle("fa-bars");
+        hamburgerIcon.classList.toggle("fa-times");
+        setTimeout(function() {
+          sidebar.style.transform = "translateX(0)";
+        }, 10);
+      } else {
+        sidebar.style.transform = "translateX(-100%)";
+        setTimeout(function() {
+          sidebar.style.display = "none";
+          hamburgerIcon.classList.remove("fa-times");
+          hamburgerIcon.classList.add("fa-bars");
+        }, 300);
+      }
+    });
+  });
+</script>
+
+ <script src="{% static 'js/main.js' %}"></script>
+ 
+           
+
+
+  <!--Bootstrap: Bootstrap Bundle with Popper -->
+  <script src="{% static 'bootstrap-5.1.3-dist/js/bootstrap.bundle.min.js' %}"></script>
+  <script src="{% static 'shared/js/dashboard.js' %}"></script>
+  <!-- Custom JS  -->
+ 
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script>AOS.init();</script>
+  {% block js %}
+  {% endblock js %}
+</body>
+
+</html>
